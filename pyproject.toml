@@ -1,0 +1,33 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "sambanova-gradio"
+version = "0.1.0"
+description = "A Python package for replicating Gradio applications"
+authors = [
+    { name = "Your Name", email = "your.email@example.com" }
+]
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "gradio",
+    "sambanova",
+]
+
+[project.urls]
+homepage = "https://github.com/your-username/sambanova-gradio"
+repository = "https://github.com/your-username/sambanova-gradio"
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["sambanova_gradio"]
+
