@@ -16,7 +16,7 @@ That's it!
 
 # Basic Usage
 
-Just like if you were to use the `sambanova` client, you should first save your sambanova API token to this environment variable:
+Just like if you were to use the `sambanova` API, you should first save your sambanova API token to this environment variable:
 
 ```
 export sambanova_API_TOKEN=<your token>
@@ -29,15 +29,16 @@ import gradio as gr
 import sambanova_gradio
 
 gr.load(
-    name='black-forest-labs/flux-schnell',
-    src=sambanova_gradio.registry
+    name='Meta-Llama-3.1-405B-Instruct',
+    src=sambanova_gradio.registry,
+    title='Sambanova-Gradio Integration',
+    description="Chat with Meta-Llama-3.1-405B-Instruct model."
 ).launch()
 ```
 
 Run the Python file, and you should see a Gradio Interface connected to the model on sambanova!
 
-<img width="1246" alt="image" src="https://github.com/user-attachments/assets/2c975cbd-965f-4967-9468-d791aabfc9aa">
-
+![alt text](chatinterface.png)
 
 # Customization 
 
@@ -48,13 +49,14 @@ import gradio as gr
 import sambanova_gradio
 
 gr.load(
-    name='black-forest-labs/flux-schnell',
+    name='Meta-Llama-3.1-405B-Instruct',
     src=sambanova_gradio.registry,
-    inputs=gr.Textbox(lines=4),
-    examples=["a 19th century portrait of a man on the moon", "a small cartoon mouse eating an ice cream cone"],
+    title='Sambanova-Gradio Integration',
+    description="Chat with Meta-Llama-3.1-405B-Instruct model.",
+    examples=["What is 2+2", "How many R are there in the word Strawberry?"]
 ).launch()
 ```
-
+![alt text](chatinterface_with_examples.png)
 
 # Composition
 
@@ -66,16 +68,16 @@ import sambanova_gradio
 
 with gr.Blocks() as demo:
     with gr.Tab("SDXL"):
-        gr.load('sambanova-ai/fast-sdxl', src=sambanova_gradio.registry)
+        gr.load('Meta-Llama-3.1-405B-Instruct', src=sambanova_gradio.registry)
     with gr.Tab("Flux"):
-        gr.load('black-forest-labs/flux-schnell', src=sambanova_gradio.registry)
+        gr.load('Meta-Llama-3.1-70B-Instruct-8k', src=sambanova_gradio.registry)
 
 demo.launch()
 ```
 
 # Under the Hood
 
-The `sambanova-gradio` Python library has two dependencies: `sambanova` and `gradio`. It defines a "registry" function `sambanova_gradio.registry`, which takes in a model name and returns a Gradio app.
+The `sambanova-gradio` Python library has two dependencies: `openai` and `gradio`. It defines a "registry" function `sambanova_gradio.registry`, which takes in a model name and returns a Gradio app.
 
 -------
 
