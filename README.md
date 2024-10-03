@@ -16,10 +16,10 @@ That's it!
 
 # Basic Usage
 
-Just like if you were to use the `sambanova` client, you should first save your sambanova API token to this environment variable:
+Just like if you were to use the `sambanova` API, you should first save your sambanova API token to this environment variable:
 
 ```
-export sambanova_API_TOKEN=<your token>
+export SAMBANOVA_API_KEY=<your token>
 ```
 
 Then in a Python file, write:
@@ -29,32 +29,32 @@ import gradio as gr
 import sambanova_gradio
 
 gr.load(
-    name='black-forest-labs/flux-schnell',
-    src=sambanova_gradio.registry
+    name='Meta-Llama-3.1-405B-Instruct',
+    src=sambanova_gradio.registry,
 ).launch()
 ```
 
 Run the Python file, and you should see a Gradio Interface connected to the model on sambanova!
 
-<img width="1246" alt="image" src="https://github.com/user-attachments/assets/2c975cbd-965f-4967-9468-d791aabfc9aa">
-
+![ChatInterface](chatinterface.png)
 
 # Customization 
 
-Once you can create a Gradio UI from a sambanova endpoint, you can customize it by setting your own input and output components, or any other arguments to `gr.Interface`. For example, the screenshot above was generated with:
+Once you can create a Gradio UI from a sambanova endpoint, you can customize it by setting your own input and output components, or any other arguments to `gr.Interface`. For example, the screenshot below was generated with:
 
 ```py
 import gradio as gr
 import sambanova_gradio
 
 gr.load(
-    name='black-forest-labs/flux-schnell',
+    name='Meta-Llama-3.1-405B-Instruct',
     src=sambanova_gradio.registry,
-    inputs=gr.Textbox(lines=4),
-    examples=["a 19th century portrait of a man on the moon", "a small cartoon mouse eating an ice cream cone"],
+    title='Sambanova-Gradio Integration',
+    description="Chat with Meta-Llama-3.1-405B-Instruct model.",
+    examples=["Explain quantum gravity to a 5-year old.", "How many R are there in the word Strawberry?"]
 ).launch()
 ```
-
+![ChatInterface with customizations](chatinterface_with_customization.png)
 
 # Composition
 
@@ -65,17 +65,28 @@ import gradio as gr
 import sambanova_gradio
 
 with gr.Blocks() as demo:
-    with gr.Tab("SDXL"):
-        gr.load('sambanova-ai/fast-sdxl', src=sambanova_gradio.registry)
-    with gr.Tab("Flux"):
-        gr.load('black-forest-labs/flux-schnell', src=sambanova_gradio.registry)
+    with gr.Tab("405B"):
+        gr.load('Meta-Llama-3.1-405B-Instruct', src=sambanova_gradio.registry)
+    with gr.Tab("70B"):
+        gr.load('Meta-Llama-3.1-70B-Instruct-8k', src=sambanova_gradio.registry)
 
 demo.launch()
 ```
 
 # Under the Hood
 
-The `sambanova-gradio` Python library has two dependencies: `sambanova` and `gradio`. It defines a "registry" function `sambanova_gradio.registry`, which takes in a model name and returns a Gradio app.
+The `sambanova-gradio` Python library has two dependencies: `openai` and `gradio`. It defines a "registry" function `sambanova_gradio.registry`, which takes in a model name and returns a Gradio app.
+
+# Supported Models in Sambanova Cloud
+
+| Model | Context Length | Output Length | Dtype / Precision |
+|-------|----------------|---------------|-------|
+| Meta-Llama-3.1-8B-Instruct | 4096 | 1000 | BF16 |  
+| Meta-Llama-3.1-8B-Instruct-8k | 8192 | 1000 | BF16 |  
+| Meta-Llama-3.1-70B-Instruct | 4096 | 1000 | BF16 |
+| Meta-Llama-3.1-70B-Instruct-8k | 8192 | 1000 | BF16 |
+| Meta-Llama-3.1-405B-Instruct | 4096 | 1000 | BF16 |
+| Meta-Llama-3.1-405B-Instruct-8k | 8192 | 1000 | BF16 |
 
 -------
 
@@ -84,5 +95,5 @@ Note: if you are getting a 401 authentication error, then the sambanova API Clie
 ```py
 import os
 
-os.environ["sambanova_API_TOKEN"] = ...
+os.environ["SAMBANOVA_API_KEY"] = ...
 ```

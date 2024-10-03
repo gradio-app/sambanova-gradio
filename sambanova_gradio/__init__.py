@@ -1,43 +1,78 @@
+import os
+from openai import OpenAI
 import gradio as gr
-import sambanova
-
 from typing import Callable
 
-def get_fn(model_name: str, preprocess: Callable, postprocess: Callable):
-    def fn(*args):
-        args = preprocess(*args)
-        outputs = sambanova.run(model_name, args)
-        return postprocess(outputs)
+__version__ = "0.0.1"
+
+
+def get_fn(model_name: str, preprocess: Callable, postprocess: Callable, api_key: str):
+    def fn(message, history):
+        inputs = preprocess(message, history)
+        client = OpenAI(
+            base_url="https://api.sambanova.ai/v1/",
+            api_key=api_key,
+        )
+        completion = client.chat.completions.create(
+            model=model_name,
+            messages=inputs["messages"],
+            stream=True,
+        )
+        response_text = ""
+        for chunk in completion:
+            delta = chunk.choices[0].delta.content or ""
+            response_text += delta
+            yield postprocess(response_text)
+
     return fn
 
-# Implemented manually for now, but could we parse the openapi spec to get the interface args?
+
 def get_interface_args(pipeline):
-    if pipeline == "text-to-image":
-        inputs = [gr.Textbox()]
-        outputs = [gr.Image()]
-        preprocess = lambda x: {"prompt": x}
-        postprocess = lambda x: x[0]
+    if pipeline == "chat":
+        inputs = None
+        outputs = None
+
+        def preprocess(message, history):
+            messages = []
+            for user_msg, assistant_msg in history:
+                messages.append({"role": "user", "content": user_msg})
+                messages.append({"role": "assistant", "content": assistant_msg})
+            messages.append({"role": "user", "content": message})
+            return {"messages": messages}
+
+        postprocess = lambda x: x  # No post-processing needed
+    else:
+        # Add other pipeline types when they will be needed
+        raise ValueError(f"Unsupported pipeline type: {pipeline}")
     return inputs, outputs, preprocess, postprocess
 
-def get_pipeline(model):
-    pipeline = "text-to-image"
-    return pipeline
 
-def registry(name: str, token: str | None, inputs=None, outputs=None, **kwargs) -> gr.Interface:
+def get_pipeline(model_name):
+    # Determine the pipeline type based on the model name
+    # For simplicity, assuming all models are chat models at the moment
+    return "chat"
+
+
+def registry(name: str, token: str | None = None, **kwargs):
     """
-    Create a Gradio Interface for a model on sambanova.
+    Create a Gradio Interface for a model on Sambanova.
+
     Parameters:
-        - name (str): The name of the model on sambanova.
-        - token (str, optional): The API token for the model on sambanova. Not used for now.
-        - inputs (List[gr.Component], optional): The input components to use instead of the default.
-        - outputs (List[gr.Component], optional): The output components to use instead of the default.
+        - name (str): The name of the model on Sambanova.
+        - token (str, optional): The API key for Sambanova.
     """
+    api_key = token or os.environ.get("SAMBANOVA_API_KEY")
+    if not api_key:
+        raise ValueError("SAMBANOVA_API_KEY environment variable is not set.")
+
     pipeline = get_pipeline(name)
-    inputs_, outputs_, preprocess, postprocess = get_interface_args(pipeline)
-    inputs, outputs = inputs or inputs_, outputs or outputs_
+    inputs, outputs, preprocess, postprocess = get_interface_args(pipeline)
+    fn = get_fn(name, preprocess, postprocess, api_key)
 
-    # construct a gr.Interface object
-    fn = get_fn(name, preprocess, postprocess)
-    return gr.Interface(fn, inputs, outputs, **kwargs)
+    if pipeline == "chat":
+        interface = gr.ChatInterface(fn=fn, **kwargs)
+    else:
+        # For other pipelines, create a standard Interface (not implemented yet)
+        interface = gr.Interface(fn=fn, inputs=inputs, outputs=outputs, **kwargs)
 
-__version__ = "0.0.1"
+    return interface
