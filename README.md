@@ -31,18 +31,16 @@ import sambanova_gradio
 gr.load(
     name='Meta-Llama-3.1-405B-Instruct',
     src=sambanova_gradio.registry,
-    title='Sambanova-Gradio Integration',
-    description="Chat with Meta-Llama-3.1-405B-Instruct model."
 ).launch()
 ```
 
 Run the Python file, and you should see a Gradio Interface connected to the model on sambanova!
 
-![alt text](chatinterface.png)
+![ChatInterface](chatinterface.png)
 
 # Customization 
 
-Once you can create a Gradio UI from a sambanova endpoint, you can customize it by setting your own input and output components, or any other arguments to `gr.Interface`. For example, the screenshot above was generated with:
+Once you can create a Gradio UI from a sambanova endpoint, you can customize it by setting your own input and output components, or any other arguments to `gr.Interface`. For example, the screenshot below was generated with:
 
 ```py
 import gradio as gr
@@ -53,10 +51,10 @@ gr.load(
     src=sambanova_gradio.registry,
     title='Sambanova-Gradio Integration',
     description="Chat with Meta-Llama-3.1-405B-Instruct model.",
-    examples=["What is 2+2", "How many R are there in the word Strawberry?"]
+    examples=["Explain quantum gravity to a 5-year old.", "How many R are there in the word Strawberry?"]
 ).launch()
 ```
-![alt text](chatinterface_with_examples.png)
+![ChatInterface with customizations](chatinterface_with_customization.png)
 
 # Composition
 
@@ -67,9 +65,9 @@ import gradio as gr
 import sambanova_gradio
 
 with gr.Blocks() as demo:
-    with gr.Tab("SDXL"):
+    with gr.Tab("405B"):
         gr.load('Meta-Llama-3.1-405B-Instruct', src=sambanova_gradio.registry)
-    with gr.Tab("Flux"):
+    with gr.Tab("70B"):
         gr.load('Meta-Llama-3.1-70B-Instruct-8k', src=sambanova_gradio.registry)
 
 demo.launch()
@@ -78,6 +76,17 @@ demo.launch()
 # Under the Hood
 
 The `sambanova-gradio` Python library has two dependencies: `openai` and `gradio`. It defines a "registry" function `sambanova_gradio.registry`, which takes in a model name and returns a Gradio app.
+
+# Supported Models in Sambanova Cloud
+
+| Model | Context Length | Output Length | Dtype / Precision |
+|-------|----------------|---------------|-------|
+| Meta-Llama-3.1-8B-Instruct | 4096 | 1000 | BF16 |  
+| Meta-Llama-3.1-8B-Instruct-8k | 8192 | 1000 | BF16 |  
+| Meta-Llama-3.1-70B-Instruct | 4096 | 1000 | BF16 |
+| Meta-Llama-3.1-70B-Instruct-8k | 8192 | 1000 | BF16 |
+| Meta-Llama-3.1-405B-Instruct | 4096 | 1000 | BF16 |
+| Meta-Llama-3.1-405B-Instruct-8k | 8192 | 1000 | BF16 |
 
 -------
 

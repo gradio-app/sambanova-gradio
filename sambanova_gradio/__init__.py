@@ -64,12 +64,8 @@ def registry(name: str, api_key: str = None, **kwargs):
         - name (str): The name of the model on Sambanova.
         - api_key (str, optional): The API key for Sambanova.
     """
-    # Set the Sambanova API key
-    if api_key is not None:
-        os.environ["SAMBANOVA_API_KEY"] = api_key
-
-    # Ensure the API key is set
-    api_key = os.environ.get("SAMBANOVA_API_KEY")
+    # Ensure the Sambanova API key is set
+    api_key = api_key or os.environ.get("SAMBANOVA_API_KEY")
     if not api_key:
         raise ValueError("SAMBANOVA_API_KEY environment variable is not set.")
 
