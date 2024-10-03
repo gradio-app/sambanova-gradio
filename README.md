@@ -67,7 +67,7 @@ import sambanova_gradio
 with gr.Blocks() as demo:
     with gr.Tab("405B"):
         gr.load('Meta-Llama-3.1-405B-Instruct', src=sambanova_gradio.registry)
-    with gr.Tab("Flux"):
+    with gr.Tab("70B"):
         gr.load('Meta-Llama-3.1-70B-Instruct-8k', src=sambanova_gradio.registry)
 
 demo.launch()
