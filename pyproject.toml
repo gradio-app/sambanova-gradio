@@ -18,7 +18,7 @@ classifiers = [
 ]
 dependencies = [
     "gradio",
-    "sambanova",
+    "openai",
 ]
 
 [project.urls]

@@ -5,7 +5,7 @@ from typing import Callable
 
 __version__ = "0.0.1"
 
-def get_fn(model_name: str, preprocess: Callable, postprocess: Callable):
+def get_fn(model_name: str, preprocess: Callable, postprocess: Callable, api_key: str):
     def fn(message, history):
         # Preprocess the inputs
         inputs = preprocess(message, history)
@@ -13,7 +13,7 @@ def get_fn(model_name: str, preprocess: Callable, postprocess: Callable):
         # Initialize the OpenAI client for Sambanova
         client = OpenAI(
             base_url="https://api.sambanova.ai/v1/",
-            api_key=os.environ.get("SAMBANOVA_API_KEY"),
+            api_key=api_key, 
         )
 
         # Call the Sambanova API with streaming enabled
@@ -56,23 +56,23 @@ def get_pipeline(model_name):
     # For simplicity, assuming all models are chat models at the moment
     return "chat"
 
-def registry(name: str, api_key: str = None, **kwargs):
+def registry(name: str, token: str | None = None, **kwargs):
     """
     Create a Gradio Interface for a model on Sambanova.
 
     Parameters:
         - name (str): The name of the model on Sambanova.
-        - api_key (str, optional): The API key for Sambanova.
+        - token (str, optional): The API key for Sambanova.
     """
     # Ensure the Sambanova API key is set
-    api_key = api_key or os.environ.get("SAMBANOVA_API_KEY")
+    api_key = token or os.environ.get("SAMBANOVA_API_KEY")
     if not api_key:
         raise ValueError("SAMBANOVA_API_KEY environment variable is not set.")
 
     # Determine the pipeline type
     pipeline = get_pipeline(name)
     inputs, outputs, preprocess, postprocess = get_interface_args(pipeline)
-    fn = get_fn(name, preprocess, postprocess)
+    fn = get_fn(name, preprocess, postprocess, api_key)
 
     if pipeline == "chat":
         # Create a Gradio ChatInterface
