@@ -19,7 +19,7 @@ That's it!
 Just like if you were to use the `sambanova` API, you should first save your sambanova API token to this environment variable:
 
 ```
-export sambanova_API_TOKEN=<your token>
+export SAMBANOVA_API_KEY=<your token>
 ```
 
 Then in a Python file, write:
@@ -95,5 +95,5 @@ Note: if you are getting a 401 authentication error, then the sambanova API Clie
 ```py
 import os
 
-os.environ["sambanova_API_TOKEN"] = ...
+os.environ["SAMBANOVA_API_KEY"] = ...
 ```
