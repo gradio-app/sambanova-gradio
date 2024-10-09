@@ -4,13 +4,9 @@ is a Python package that makes it very easy for developers to create machine lea
 
 # Installation
 
-1. Clone this repo: `git clone git@github.com:gradio-app/sambanova-gradio.git`
-2. Navigate into the folder that you cloned this repo into: `cd sambanova-gradio`
-3. Install this package: `pip install -e .`
-
-<!-- ```bash
+```bash
 pip install sambanova-gradio
-``` -->
+```
 
 That's it! 
 
