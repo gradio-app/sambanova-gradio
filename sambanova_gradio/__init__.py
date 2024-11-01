@@ -1,10 +1,15 @@
 import os
+import base64
 from openai import OpenAI
 import gradio as gr
 from typing import Callable
 
 __version__ = "0.0.1"
 
+def get_image_base64(url: str, ext: str):
+    with open(url, "rb") as image_file:
+        encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
+    return "data:image/" + ext + ";base64," + encoded_string
 
 def get_fn(model_name: str, preprocess: Callable, postprocess: Callable, api_key: str):
     def fn(message, history):
@@ -26,6 +31,28 @@ def get_fn(model_name: str, preprocess: Callable, postprocess: Callable, api_key
 
     return fn
 
+def handle_user_msg(message: str):
+    if type(message) is str:
+        return message
+    elif type(message) is dict:
+        if message["files"] is not None and len(message["files"]) > 0:
+            ext = os.path.splitext(message["files"][-1])[1].strip(".")
+            if ext.lower() in ["png", "jpg", "jpeg", "gif", "pdf"]:
+                encoded_str = get_image_base64(message["files"][-1], ext)
+            else:
+                raise NotImplementedError(f"Not supported file type {ext}")
+            content = [
+                    {"type": "text", "text": message["text"]},
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url": encoded_str,
+                        }
+                    },
+                ]
+        else:
+            content = message["text"]
+        return content
 
 def get_interface_args(pipeline):
     if pipeline == "chat":
@@ -35,9 +62,9 @@ def get_interface_args(pipeline):
         def preprocess(message, history):
             messages = []
             for user_msg, assistant_msg in history:
-                messages.append({"role": "user", "content": user_msg})
+                messages.append({"role": "user", "content": handle_user_msg(user_msg)})
                 messages.append({"role": "assistant", "content": assistant_msg})
-            messages.append({"role": "user", "content": message})
+            messages.append({"role": "user", "content": handle_user_msg(message)})
             return {"messages": messages}
 
         postprocess = lambda x: x  # No post-processing needed
