@@ -18,16 +18,20 @@ def get_fn(model_name: str, preprocess: Callable, postprocess: Callable, api_key
             base_url="https://api.sambanova.ai/v1/",
             api_key=api_key,
         )
-        completion = client.chat.completions.create(
-            model=model_name,
-            messages=inputs["messages"],
-            stream=True,
-        )
-        response_text = ""
-        for chunk in completion:
-            delta = chunk.choices[0].delta.content or ""
-            response_text += delta
-            yield postprocess(response_text)
+        try:
+            completion = client.chat.completions.create(
+                model=model_name,
+                messages=inputs["messages"],
+                stream=True,
+            )
+            response_text = ""
+            for chunk in completion:
+                delta = chunk.choices[0].delta.content or ""
+                response_text += delta
+                yield postprocess(response_text)
+        except Exception as e:
+            error_message = f"Error: {str(e)}"
+            return error_message
 
     return fn
 
@@ -53,17 +57,28 @@ def handle_user_msg(message: str):
         else:
             content = message["text"]
         return content
+    else:
+        raise NotImplementedError
 
 def get_interface_args(pipeline):
     if pipeline == "chat":
         inputs = None
         outputs = None
 
-        def preprocess(message, history):
+        def preprocess(message, history):           
             messages = []
+            files = None
             for user_msg, assistant_msg in history:
-                messages.append({"role": "user", "content": handle_user_msg(user_msg)})
-                messages.append({"role": "assistant", "content": assistant_msg})
+                if assistant_msg is not None:
+                    messages.append({"role": "user", "content": handle_user_msg(user_msg)})
+                    messages.append({"role": "assistant", "content": assistant_msg})
+                else:
+                    files = user_msg
+            if type(message) is str and files is not None:
+                message = {"text":message, "files":files}
+            elif type(message) is dict and files is not None:
+                if message["files"] is None or len(message["files"]) == 0:
+                    message["files"] = files
             messages.append({"role": "user", "content": handle_user_msg(message)})
             return {"messages": messages}
 
