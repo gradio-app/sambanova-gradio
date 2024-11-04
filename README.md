@@ -30,6 +30,23 @@ gr.load(
 ).launch()
 ```
 
+or simply without setting the environment variable
+```
+# text only chatbot
+import gradio as gr
+import sambanova_gradio
+
+gr.load("Meta-Llama-3.1-70B-Instruct-8k", src=sambanova_gradio.registry, accept_token=True).launch()
+```
+
+```
+# multimodal chatbot
+import gradio as gr
+import sambanova_gradio
+
+gr.load("Llama-3.2-11B-Vision-Instruct", src=sambanova_gradio.registry, accept_token=True, multimodal = True).launch()
+```
+
 Run the Python file, and you should see a Gradio Interface connected to the model on sambanova!
 
 ![ChatInterface](chatinterface.png)
@@ -84,6 +101,12 @@ Access Meta’s Llama 3.2 and 3.1 family of models at **full precision** via the
 2. Llama 3.2 3B:
    - Model ID: `Meta-Llama-3.2-3B-Instruct`
    - Context length: 4,096 tokens
+3. Llama 3.2 11B Vision:
+   - Model ID: `Llama-3.2-11B-Vision-Instruct`
+   - Context length: 4096 tokens
+4. Llama 3.2 90B Vision:
+   - Model ID: `Llama-3.2-90B-Vision-Instruct`
+   - Context length: 4096 tokens
 
 **Model details for Llama 3.1 family**:
 1. Llama 3.1 8B:
